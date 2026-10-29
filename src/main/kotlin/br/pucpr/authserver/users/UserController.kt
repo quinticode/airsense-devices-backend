@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 
@@ -19,12 +18,9 @@ import org.springframework.web.bind.annotation.*
 class UserController(val service: UserService) {
     @GetMapping
     fun list(
-        @RequestParam sortDir: String? = null,
-        @RequestParam role: String? = null
+        @RequestParam sortDir: String? = null
     ): ResponseEntity<List<UserResponse>> {
-        val users = if (role != null) service.findByRole(role)
-        else service.findAll(SortDir.find(sortDir ?: "ASC"))
-        return users
+        return service.findAll(SortDir.find(sortDir ?: "ASC"))
             .map { UserResponse(it) }
             .let { ResponseEntity.ok(it) }
     }
@@ -56,7 +52,7 @@ class UserController(val service: UserService) {
         auth: Authentication
     ): ResponseEntity<UserResponse> {
         val token = auth.principal as? UserToken ?: throw ForbiddenException()
-        if (token.id != id && !token.isAdmin) {
+        if (token.id != id) {
             throw ForbiddenException("Update is not allowed")
         }
         return service.update(id, user.name!!)
@@ -65,22 +61,16 @@ class UserController(val service: UserService) {
             ?: ResponseEntity.noContent().build()
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @SecurityRequirement(name = "jwt-auth")
     @DeleteMapping("/{id}")
     fun delete(
-        @PathVariable id: Long
-    ) = service.delete(id)
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @SecurityRequirement(name = "jwt-auth")
-    @PutMapping("/{id}/roles/{role}")
-    fun grant(
         @PathVariable id: Long,
-        @PathVariable role: String
-    ): ResponseEntity<Void> = service.addRole(id, role)
-        .let {
-            if (it) ResponseEntity.ok().build()
-            else ResponseEntity.noContent().build()
+        auth: Authentication
+    ) {
+        val token = auth.principal as? UserToken ?: throw ForbiddenException()
+        if (token.id != id) {
+            throw ForbiddenException("Delete is not allowed")
         }
+        service.delete(id)
+    }
 }

@@ -3,7 +3,6 @@ package br.pucpr.authserver.users
 import br.pucpr.authserver.exception.NotFoundException
 import br.pucpr.authserver.exception.UnauthorizedException
 import br.pucpr.authserver.exceptions.BadRequestException
-import br.pucpr.authserver.roles.RoleRepository
 import br.pucpr.authserver.security.Jwt
 import br.pucpr.authserver.users.responses.LoginResponse
 import br.pucpr.authserver.users.responses.UserResponse
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service
 @Service
 class UserService(
     val repository: UserRepository,
-    val roleRepository: RoleRepository,
     val jwt: Jwt
 ) {
     fun insert(user: User): User {
@@ -35,26 +33,8 @@ class UserService(
 
     fun delete(id: Long) {
         val user = findById(id)
-        if (user.isAdmin() && repository.findByRole("ADMIN").size == 1) {
-            throw BadRequestException("Cannot delete the last admin")
-        }
         repository.delete(user)
         log.info("User $id deleted successfully")
-    }
-
-    fun findByRole(role: String) = repository.findByRole(role)
-
-    fun addRole(id: Long, roleName: String): Boolean {
-        val upperRole = roleName.uppercase()
-        val user = findById(id)
-        if (user.roles.any { it.name == upperRole }) return false
-
-        val role = roleRepository.findByName(upperRole) ?: throw BadRequestException("Role $upperRole not found")
-
-        user.roles.add(role)
-        repository.save(user)
-        log.info("User $id successfully added to role $role")
-        return true
     }
 
     fun update(id: Long, name: String): User? {

@@ -7,6 +7,5 @@ import org.springframework.boot.context.properties.bind.ConstructorBinding
 data class SecurityProperties @ConstructorBinding constructor(
     val issuer: String,
     val secret: String,
-    val expireHours: Long,
-    val adminExpireHours: Long,
+    val expireHours: Long
 )

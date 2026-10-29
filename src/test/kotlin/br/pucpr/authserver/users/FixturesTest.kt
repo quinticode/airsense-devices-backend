@@ -13,7 +13,6 @@ class FixturesTest {
         user.email shouldBe "user@email.com"
         user.id shouldBe 1L
         user.password shouldBe "password"
-        user.roles shouldBe mutableSetOf()
     }
 
     @Test

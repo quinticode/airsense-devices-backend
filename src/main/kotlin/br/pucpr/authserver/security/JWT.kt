@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.stereotype.Component
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
@@ -27,9 +26,7 @@ class Jwt(
                 .signWith(Keys.hmacShaKeyFor(props.secret.toByteArray()))
                 .issuedAt(utcNow().toDate())
                 .expiration(
-                    utcNow().plusHours(
-                        if (it.isAdmin) props.adminExpireHours else props.expireHours
-                    ).toDate()
+                    utcNow().plusHours(props.expireHours).toDate()
                 )
                 .issuer(props.issuer)
                 .subject(user.id.toString())
@@ -63,8 +60,7 @@ class Jwt(
         private fun utcNow() = ZonedDateTime.now(ZoneOffset.UTC)
         private fun ZonedDateTime.toDate(): Date = Date.from(this.toInstant())
         private fun UserToken.toAuthentication(): Authentication {
-            val authorities = roles.map { SimpleGrantedAuthority("ROLE_$it") }
-            return UsernamePasswordAuthenticationToken.authenticated(this, id, authorities)
+            return UsernamePasswordAuthenticationToken.authenticated(this, id, emptyList())
         }
     }
 }

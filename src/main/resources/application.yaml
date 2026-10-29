@@ -2,7 +2,7 @@ spring:
   config:
     import: "classpath:security.yaml"
   application:
-    name: authserver
+    name: airsense-backend
   datasource:
     url: jdbc:h2:mem:db
     username: sa

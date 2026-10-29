@@ -1,7 +1,6 @@
 package br.pucpr.authserver.users
 
 import br.pucpr.authserver.exceptions.BadRequestException
-import br.pucpr.authserver.roles.RoleRepository
 import br.pucpr.authserver.security.Jwt
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -13,10 +12,9 @@ import org.junit.jupiter.api.Test
 class UserServiceTest {
 
     private val repository = mockk<UserRepository>()
-    private val roleRepository = mockk<RoleRepository>()
     private val jwt = mockk<Jwt>()
 
-    private val service = UserService(repository, roleRepository, jwt)
+    private val service = UserService(repository, jwt)
 
     @BeforeEach
     fun setUp() {
@@ -25,7 +23,7 @@ class UserServiceTest {
 
     @AfterEach
     fun tearDown() {
-        checkUnnecessaryStub(repository, roleRepository, jwt)
+        checkUnnecessaryStub(repository, jwt)
     }
 
     @Test
