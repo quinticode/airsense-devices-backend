@@ -32,3 +32,10 @@ springdoc:
 logging:
   file:
     path: ./logs
+
+airsense:
+  sensor-simulator:
+    enabled: true
+    interval: 5000
+    variation-percent: 0.02
+    history-size: 1000

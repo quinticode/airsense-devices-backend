@@ -1,7 +1,7 @@
 # AirSense Backend
 
-Spring Boot API for managing air-quality sensor devices. The API currently
-supports device CRUD; sensor readings and app integration are not implemented.
+Spring Boot API for managing air-quality sensor devices. It also provides a
+configurable in-memory sensor simulator for testing dashboard integrations.
 
 ## Device API
 
@@ -36,3 +36,23 @@ to `ACTIVE`. A successful create returns `201 Created`, reads and updates return
 
 Swagger UI is available at
 `http://localhost:8080/api/swagger-ui/index.html` while the server is running.
+
+## Simulated sensor readings
+
+The simulator generates one reading per configured sensor threshold at a regular
+interval. Each value stays between that sensor's low and high thresholds and
+changes gradually between readings. Readings are held in a bounded in-memory
+history and are lost when the server restarts. Configure `airsense.sensor-simulator`
+in `application.yaml` (or with matching environment variables):
+
+| Setting | Default | Purpose |
+|---|---:|---|
+| `enabled` | `true` | Enable or disable generation |
+| `interval` | `5000` | Delay between generations, in milliseconds |
+| `variation-percent` | `0.02` | Maximum change per reading as a fraction of the threshold range |
+| `history-size` | `1000` | Maximum number of readings retained |
+
+Poll `GET /api/sensor-readings` for all retained readings or
+`GET /api/sensor-readings/{name}` for readings from one sensor. Configure sensor
+thresholds using the existing `/api/sensor-thresholds` endpoints before expecting
+readings.
