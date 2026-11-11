@@ -7,5 +7,6 @@ data class SensorReading(
     val unit: String,
     val value: Double,
     val level: AlertLevel,
-    val timestamp: Instant
+    val timestamp: Instant,
+    val deviceId: Long? = null
 )

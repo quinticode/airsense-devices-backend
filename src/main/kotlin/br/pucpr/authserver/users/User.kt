@@ -1,5 +1,7 @@
 package br.pucpr.authserver.users
 
+import br.pucpr.authserver.devices.Device
+import jakarta.persistence.FetchType
 import jakarta.persistence.*
 
 @Entity
@@ -13,4 +15,7 @@ class User (
 
     var password: String,
     var name: String = ""
-)
+) {
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    var devices: MutableSet<Device> = mutableSetOf()
+}
