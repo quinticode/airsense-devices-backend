@@ -11,18 +11,20 @@ import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/users")
 class UserController(val service: UserService) {
-    @GetMapping
-    fun list(
-        @RequestParam sortDir: String? = null
-    ): ResponseEntity<List<UserResponse>> {
-        return service.findAll(SortDir.find(sortDir ?: "ASC"))
-            .map { UserResponse(it) }
-            .let { ResponseEntity.ok(it) }
+    @ExceptionHandler(MethodArgumentNotValidException::class)
+    fun handleValidationException(
+        exception: MethodArgumentNotValidException
+    ): ResponseEntity<Map<String, String>> {
+        val message = exception.bindingResult.fieldErrors.firstOrNull { it.field == "password" }?.defaultMessage
+            ?: exception.bindingResult.fieldErrors.firstOrNull()?.defaultMessage
+            ?: "Invalid request"
+        return ResponseEntity.badRequest().body(mapOf("message" to message))
     }
 
     @PostMapping
@@ -37,12 +39,18 @@ class UserController(val service: UserService) {
         @Valid @RequestBody login: LoginRequest
     ) = service.login(login.email!!, login.password!!)
 
+    @SecurityRequirement(name = "jwt-auth")
     @GetMapping("/{id}")
     fun getById(
-        @PathVariable id: Long
-    ) = service.findById(id)
-        .let { UserResponse(it) }
-        .let { ResponseEntity.ok(it) }
+        @PathVariable id: Long,
+        auth: Authentication
+    ): ResponseEntity<UserResponse> {
+        val token = auth.principal as? UserToken ?: throw ForbiddenException()
+        if (token.id != id) {
+            throw ForbiddenException("Access to another user's profile is not allowed")
+        }
+        return ResponseEntity.ok(UserResponse(service.findById(id)))
+    }
 
     @SecurityRequirement(name = "jwt-auth")
     @PatchMapping("/{id}")

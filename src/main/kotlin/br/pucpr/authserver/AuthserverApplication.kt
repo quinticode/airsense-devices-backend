@@ -1,4 +1,4 @@
-package br.pucpr.authserver
+ 	package br.pucpr.authserver
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan

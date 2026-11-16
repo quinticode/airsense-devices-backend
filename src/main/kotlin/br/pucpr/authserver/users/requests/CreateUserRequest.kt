@@ -6,13 +6,17 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
 
 data class CreateUserRequest(
-    @Email
+    @field:Email
     val email: String?,
 
-    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@\$!%*#?&])[A-Za-z\\d@\$!%*#?&]{8,}\$")
+    @field:NotBlank(message = "Password is required.")
+    @field:Pattern(
+        regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@\$!%*#?&])[A-Za-z\\d@\$!%*#?&]{8,}\$",
+        message = "Password is too weak. It must be at least 8 characters and include a letter, a number, and a special character."
+    )
     val password: String?,
 
-    @NotBlank
+    @field:NotBlank
     val name: String?
 ) {
     fun toUser() = User(

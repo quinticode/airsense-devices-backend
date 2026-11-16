@@ -11,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException
 @RestController
 @RequestMapping("/sensor-thresholds")
 @Validated
+@SecurityRequirement(name = "jwt-auth")
 class SensorTresholdController(
     val service: SensorTresholdService,
     private val simulator: SensorSimulator
@@ -23,7 +24,6 @@ class SensorTresholdController(
     }
 
     @PostMapping
-    @SecurityRequirement(name = "jwt-auth")
     fun insert(
         @Valid @RequestBody request: SensorTresholdRequest
     ): ResponseEntity<SensorTresholdResponse> {

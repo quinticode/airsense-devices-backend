@@ -7,7 +7,6 @@ import br.pucpr.authserver.security.Jwt
 import br.pucpr.authserver.users.responses.LoginResponse
 import br.pucpr.authserver.users.responses.UserResponse
 import org.slf4j.LoggerFactory
-import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
@@ -21,11 +20,6 @@ class UserService(
             throw BadRequestException("User already exists")
         }
         return repository.save(user)
-    }
-
-    fun findAll(dir: SortDir = SortDir.ASC) = when (dir) {
-        SortDir.ASC -> repository.findAll(Sort.by("name").ascending())
-        SortDir.DESC -> repository.findAll(Sort.by("name").descending())
     }
 
     fun findByIdOrNull(id: Long) = repository.findByIdOrNull(id)

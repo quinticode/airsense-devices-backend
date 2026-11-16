@@ -32,12 +32,12 @@ class SecurityConfig(
             .headers { it.frameOptions { fo -> fo.disable() } }
             .authorizeHttpRequests { requests ->
                 requests
+                    .requestMatchers("/h2-console/**").permitAll()
+                    .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/users", "/users/login").permitAll()
+                    .requestMatchers("/users/**").authenticated()
                     .requestMatchers("/devices/**").authenticated()
                     .requestMatchers("/environments/**").authenticated()
-                    .requestMatchers(HttpMethod.GET).permitAll()
-                    .requestMatchers(HttpMethod.POST, "/users").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/users/login").permitAll()
-                    .requestMatchers("/h2-console/**").permitAll()
                     .anyRequest().authenticated()
             }
             .addFilterBefore(jwtTokenFilter, BasicAuthenticationFilter::class.java)
